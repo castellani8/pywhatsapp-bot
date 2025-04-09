@@ -1,36 +1,40 @@
 import pywhatkit
 import time
+import json
 
-# Lista de contatos com nome e telefone (adicione ou remova conforme necessário)
-contatos = [
-    {"nome": "Fulano", "telefone": "+5511999999999"},
-    {"nome": "Ciclano", "telefone": "+5511999999999"},
-    {"nome": "Beltrano", "telefone": "+5511999999999"}
-]
+BASE_MSG = "Olá {name}, tudo bem? Esta é apenas uma mensagem de teste!"
 
-# Mensagem base com um placeholder para inserir o nome
-mensagem_base = "Olá {nome}, tudo bem? Esta é apenas uma mensagem de teste!"
+def main(): 
+    contacts = load_contacts()
 
-# Envia a mensagem para cada contato da lista
-for contato in contatos:
-    nome = contato["nome"]
-    telefone = contato["telefone"]
+    for contact in contacts:
+        name = contact["name"]
+        phone = contact["phone"]
+
+        msg = BASE_MSG.format(name=name)
+        print(f"Sending message to {name} ({phone})")
+        send_message(phone, msg)
+
+        time.sleep(10)
+
+def load_contacts():
+    try:
+        return json.load(open('data/contacts.json'))
+    except FileNotFoundError:
+        print("Arquivo de contatos não encontrado. Criando arquivo padrão.")
+        return []
+    except json.JSONDecodeError:
+        print("Erro ao decodificar o arquivo de contatos. Criando arquivo padrão.")
+        return []
     
-    # Cria a mensagem personalizada
-    mensagem_personalizada = mensagem_base.format(nome=nome)
-    
-    # Envia a mensagem instantaneamente (sem precisar agendar horário)
-    # Observações:
-    #  - Após abrir o WhatsApp Web, o script aguarda alguns segundos (wait_time)
-    #  - tab_close=True fecha a aba do WhatsApp Web automaticamente depois do envio
-    #  - close_time define quantos segundos depois do envio a aba será fechada
+def send_message(phone, msg):
     pywhatkit.sendwhatmsg_instantly(
-        phone_no=telefone,
-        message=mensagem_personalizada,
-        wait_time=15,   # Tempo de espera para o envio (ajuste conforme a conexão)
-        tab_close=True, # Fecha aba depois do envio
-        close_time=5    # Tempo até fechar a aba após o envio
+        phone_no=phone,
+        message=msg,
+        wait_time=15,
+        tab_close=True,
+        close_time=5
     )
     
-    # Adicione uma pausa para evitar problemas de envio (ajuste conforme necessário)
-    time.sleep(10)
+if __name__ == "__main__":
+    main()
