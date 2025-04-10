@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>WhatsApp Sender</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif; 
+        margin: 20px;
+      }
+      h1, h2 {
+        color: #333;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .box {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+      }
+      .box h3 {
+        margin-top: 0;
+      }
+      label {
+        display: inline-block;
+        width: 120px;
+        font-weight: bold;
+      }
+      input[type="text"], textarea {
+        width: 300px;
+      }
+      .button {
+        padding: 5px 10px; 
+        margin: 5px 0;
+        cursor: pointer;
+      }
+      .stop { background-color: #f33; color: #fff; }
+      .exit { background-color: #555; color: #fff; }
+      .table { border-collapse: collapse; width: 100%; margin-top: 10px;}
+      .table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>WhatsApp Sender</h1>
+      
+      <div class="box">
+        <h3>Envio Imediato</h3>
+        <p>Quantidade de contatos: {{ contacts_count }}</p>
+        <form action="/send_now" method="post">
+          <label>Mensagem:</label><br>
+          <textarea name="message" rows="4" cols="50">Olá {name}, tudo bem?</textarea><br><br>
+          <input type="submit" value="Enviar Mensagens" class="button">
+        </form>
+        <form action="/stop" method="post" style="display:inline;">
+          <button type="submit" class="button stop">Parar Envio</button>
+        </form>
+        <form action="/exit" method="post" style="display:inline;">
+          <button type="submit" class="button exit">Sair do Programa</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
