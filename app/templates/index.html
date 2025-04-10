@@ -62,6 +62,30 @@
           <button type="submit" class="button exit">Sair do Programa</button>
         </form>
       </div>
+
+      <div class="box">
+        <h3>Pré-visualização dos Contatos</h3>
+        {% if contacts %}
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Telefone</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for contact in contacts %}
+              <tr>
+                <td>{{ contact.name }}</td>
+                <td>{{ contact.phone }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>Nenhum contato carregado.</p>
+        {% endif %}
+      </div>
     </div>
   </body>
 </html>

@@ -10,15 +10,15 @@ main_bp = Blueprint('main', __name__)
 
 @main_bp.route("/")
 def index():
-    """Página inicial."""
     contacts = load_contacts()
     schedules = load_schedules()
-
     return render_template(
         'index.html',
         contacts_count=len(contacts),
+        contacts=contacts,
         schedules=schedules
     )
+
 
 @main_bp.route("/send_now", methods=["POST"])
 def send_now():
