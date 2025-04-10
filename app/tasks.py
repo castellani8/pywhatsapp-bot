@@ -2,7 +2,7 @@
 import time
 import threading
 import pywhatkit
-from .config import INTERVALO_ENVIO, WAIT_TIME, CLOSE_TIME
+from .config import SEND_INTERVAL, WAIT_TIME, CLOSE_TIME
 
 # Variáveis globais para controle de envio
 sending_thread = None
@@ -55,7 +55,7 @@ def start_sending(contacts, message_template):
                 )
                 # Marca como True, pois já foi enviado com sucesso
                 contacts_progress[phone] = True
-                time.sleep(INTERVALO_ENVIO)
+                time.sleep(SEND_INTERVAL)
             except Exception as e:
                 print("[ERRO]", e)
 

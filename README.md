@@ -61,7 +61,7 @@ pip install -r requirements.txt
 
 The application uses the following configuration (in `app/config.py`):
 ```python
-INTERVALO_ENVIO = 10   # Seconds between each message
+SEND_INTERVAL = 10   # Seconds between each message
 WAIT_TIME = 15         # Time pywhatkit waits before sending
 CLOSE_TIME = 5         # Time until WhatsApp tab closes
 ```
