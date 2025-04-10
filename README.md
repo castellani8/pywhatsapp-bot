@@ -9,7 +9,9 @@ A Flask-based web application for managing and automating WhatsApp message sendi
 - 📋 Contact list management
 - ⏱️ Scheduled message sending
 - 🔄 Real-time sending progress tracking
+- ⏱️ Elapsed time tracking
 - ⏹️ Ability to stop ongoing message sending
+- 🧹 Status clearing functionality
 - 📊 JSON-based data storage
 - 🧵 Thread-safe message sending
 
@@ -26,7 +28,8 @@ pywhatsapp-bot/
 │   └── templates/       # HTML templates
 ├── data/
 │   ├── contacts.json    # Contact list storage
-│   └── schedules.json   # Message schedules storage
+│   ├── schedules.json   # Message schedules storage
+│   └── status.json      # Message sending status storage
 ├── run.py              # Application entry point
 └── requirements.txt    # Project dependencies
 ```
@@ -62,8 +65,8 @@ pip install -r requirements.txt
 The application uses the following configuration (in `app/config.py`):
 ```python
 SEND_INTERVAL = 10   # Seconds between each message
-WAIT_TIME = 15         # Time pywhatkit waits before sending
-CLOSE_TIME = 5         # Time until WhatsApp tab closes
+WAIT_TIME = 15      # Time pywhatkit waits before sending
+CLOSE_TIME = 5      # Time until WhatsApp tab closes
 ```
 
 ## Usage
@@ -79,8 +82,10 @@ python run.py
    - View and manage contacts
    - Send messages immediately
    - Schedule messages
-   - Monitor sending progress
+   - Monitor sending progress in real-time
+   - View elapsed time
    - Stop ongoing message sending
+   - Clear sending status
 
 ## Data Management
 
@@ -96,20 +101,53 @@ Contacts are stored in `data/contacts.json`:
 ### Schedules
 Message schedules are stored in `data/schedules.json`
 
+### Status
+Message sending status is stored in `data/status.json`:
+```json
+{
+  "general": {
+    "is_running": false,
+    "total_contacts": 10,
+    "processed_contacts": 3,
+    "success_count": 2,
+    "error_count": 1,
+    "start_time": 1234567890.123,
+    "end_time": 1234567891.123,
+    "elapsed_time": 1.0
+  },
+  "contacts": {
+    "11999999999": {
+      "status": "success",
+      "name": "John Doe"
+    }
+  }
+}
+```
+
 ## Web Interface Features
 
 1. **Dashboard**
    - View contact list
    - See sending progress
    - Check scheduled messages
+   - Monitor elapsed time
+   - View success/error counts
 
 2. **Message Sending**
    - Send messages immediately
    - Use message templates
-   - Monitor sending progress
+   - Monitor sending progress in real-time
    - Stop sending if needed
+   - Clear sending status
 
-3. **Contact Management**
+3. **Status Tracking**
+   - Real-time progress updates
+   - Success/error counts
+   - Elapsed time display
+   - Individual contact status
+   - Process completion status
+
+4. **Contact Management**
    - View all contacts
    - Add new contacts
    - Edit existing contacts
@@ -120,6 +158,7 @@ Message schedules are stored in `data/schedules.json`
    - Keep message intervals reasonable
    - Monitor sending progress
    - Use appropriate wait times
+   - Check success/error counts
 
 2. **Contact Management**:
    - Keep contact list updated
@@ -130,6 +169,7 @@ Message schedules are stored in `data/schedules.json`
    - Don't close browser during sending
    - Monitor sending progress
    - Use stop button if needed
+   - Clear status when starting new session
 
 ## Troubleshooting
 
@@ -142,6 +182,7 @@ Message schedules are stored in `data/schedules.json`
    - Ensure WhatsApp Web is open
    - Check internet connection
    - Verify contact numbers
+   - Check success/error counts
 
 3. **Data Issues**:
    - Check JSON file permissions

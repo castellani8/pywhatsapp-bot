@@ -35,6 +35,10 @@
               <span class="font-medium">Erros:</span>
               <span id="error-count" class="ml-2 text-red-600">0</span>
             </div>
+            <div>
+              <span class="font-medium">Tempo:</span>
+              <span id="elapsed-time" class="ml-2">00:00:00</span>
+            </div>
           </div>
         </div>
 
@@ -57,6 +61,7 @@
             >
               Enviar Mensagens
             </button>
+          </form>
 
             <!-- Botão Limpar Status -->
             <form action="/clear_status" method="post">
@@ -75,7 +80,6 @@
               </button>
             </form>
           </div>
-        </form>
       </div>
 
       <!-- Pré-visualização dos Contatos -->
@@ -167,6 +171,14 @@
               general.success_count || 0;
             document.getElementById('error-count').textContent = 
               general.error_count || 0;
+
+            // Atualiza o tempo decorrido
+            const elapsedTime = general.elapsed_time || 0;
+            const hours = Math.floor(elapsedTime / 3600);
+            const minutes = Math.floor((elapsedTime % 3600) / 60);
+            const seconds = Math.floor(elapsedTime % 60);
+            document.getElementById('elapsed-time').textContent = 
+              `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
             // Atualiza o status de cada contato
             const contacts = progressData.contacts || {};

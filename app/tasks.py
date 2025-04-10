@@ -24,7 +24,10 @@ def start_sending(contacts, message_template):
             "total_contacts": len(contacts),
             "processed_contacts": 0,
             "success_count": 0,
-            "error_count": 0
+            "error_count": 0,
+            "start_time": time.time(),
+            "end_time": None,
+            "elapsed_time": 0
         },
         "contacts": {}
     }
@@ -52,6 +55,8 @@ def start_sending(contacts, message_template):
                 # Atualiza o status geral para parado
                 status = load_status()
                 status["general"]["is_running"] = False
+                status["general"]["end_time"] = time.time()
+                status["general"]["elapsed_time"] = status["general"]["end_time"] - status["general"]["start_time"]
                 save_status(status)
                 break
 
@@ -77,6 +82,7 @@ def start_sending(contacts, message_template):
                 status["contacts"][phone]["status"] = "success"
                 status["general"]["processed_contacts"] += 1
                 status["general"]["success_count"] += 1
+                status["general"]["elapsed_time"] = time.time() - status["general"]["start_time"]
                 save_status(status)
                 print(f"[DEBUG] Updated status for {phone}: success")
                 time.sleep(SEND_INTERVAL)
@@ -87,12 +93,15 @@ def start_sending(contacts, message_template):
                 status["contacts"][phone]["status"] = "error"
                 status["general"]["processed_contacts"] += 1
                 status["general"]["error_count"] += 1
+                status["general"]["elapsed_time"] = time.time() - status["general"]["start_time"]
                 save_status(status)
                 print(f"[DEBUG] Updated status for {phone}: error")
 
         # Atualiza o status geral para finalizado
         status = load_status()
         status["general"]["is_running"] = False
+        status["general"]["end_time"] = time.time()
+        status["general"]["elapsed_time"] = status["general"]["end_time"] - status["general"]["start_time"]
         save_status(status)
         print(f"[DEBUG] Final status: {load_status()}")
 
@@ -109,6 +118,8 @@ def stop_sending():
     status = load_status()
     if status and "general" in status:
         status["general"]["is_running"] = False
+        status["general"]["end_time"] = time.time()
+        status["general"]["elapsed_time"] = status["general"]["end_time"] - status["general"]["start_time"]
         save_status(status)
 
 def is_sending():
