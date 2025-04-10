@@ -1,8 +1,7 @@
-# routes.py
 import os
 import time
 import threading
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request, render_template, jsonify  # <--- Aqui inclui jsonify
 from .data_handler import load_contacts, load_schedules
 from .tasks import start_sending, stop_sending, is_sending, contacts_progress
 
@@ -23,23 +22,20 @@ def index():
 
 @main_bp.route("/send_now", methods=["POST"])
 def send_now():
-    """Inicia o envio imediato de mensagens (em uma thread) usando o template passado."""
-    message_template = request.form.get("message", "").strip()
+    data = request.get_json()        # <-- Pegamos o JSON enviado pelo fetch
+    message_template = data.get("message", "").strip()
     if not message_template:
-        return "<p>Mensagem vazia. <a href='/'>Voltar</a></p>"
+        return "Mensagem vazia!", 400
 
     contacts = load_contacts()
     if len(contacts) == 0:
-        return "<p>Não há contatos. <a href='/'>Voltar</a></p>"
+        return "Não há contatos.", 400
 
     # Tenta iniciar o envio. Se retornar False, já existe um envio em andamento.
     if not start_sending(contacts, message_template):
-        return "<p>Já existe um envio em andamento! <a href='/'>Voltar</a></p>"
+        return "Já existe um envio em andamento.", 400
 
-    return """
-    <p>Envio iniciado em segundo plano. 
-    <a href="/">Voltar</a></p>
-    """
+    return "Envio iniciado com sucesso!", 200
 
 @main_bp.route("/stop", methods=["POST"])
 def stop_route():
@@ -56,3 +52,10 @@ def exit_app():
 
     threading.Thread(target=shutdown).start()
     return "<p>Servidor encerrado, pode fechar a janela.</p>"
+
+@main_bp.route("/status", methods=["GET"])
+def get_status():
+    """
+    Retorna o status de envio dos contatos em JSON.
+    """
+    return jsonify(contacts_progress)

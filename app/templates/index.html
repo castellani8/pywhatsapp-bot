@@ -12,26 +12,38 @@
       <!-- Envio Imediato -->
       <div class="bg-white shadow-md rounded-lg p-6 mb-8 border border-gray-200">
         <h2 class="text-xl font-semibold text-gray-700 mb-4">Envio Imediato</h2>
-        <p class="text-sm text-gray-500 mb-2">Quantidade de contatos: <strong>{{ contacts_count }}</strong></p>
+        <p class="text-sm text-gray-500 mb-2">Quantidade de contatos: 
+          <strong>{{ contacts_count }}</strong>
+        </p>
 
-        <form action="/send_now" method="post" class="space-y-4">
+        <!-- FORM que NÃO vai redirecionar -->
+        <form class="space-y-4" onsubmit="return sendMessages();">
           <div>
             <label class="block font-medium text-gray-700 mb-1">Mensagem:</label>
-            <textarea name="message" rows="4" class="w-full p-2 border rounded-lg border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400" placeholder="Digite sua mensagem...">Olá {name}, tudo bem?</textarea>
+            <textarea 
+              name="message" 
+              rows="4"
+              class="w-full p-2 border rounded-lg border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
+              placeholder="Digite sua mensagem...">Olá {name}, tudo bem?</textarea>
           </div>
 
           <div class="flex flex-wrap items-center gap-4">
-            <input type="submit" value="Enviar Mensagens" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"/>
-            
-            <form action="/stop" method="post">
-              <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">Parar Envio</button>
-            </form>
+            <!-- Botão de Enviar -->
+            <button 
+              type="submit" 
+              class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+            >
+              Enviar Mensagens
+            </button>
+          </form>
 
+            <!-- Botão Sair -->
             <form action="/exit" method="post">
-              <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">Sair do Programa</button>
+              <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">
+                Sair do Programa
+              </button>
             </form>
           </div>
-        </form>
       </div>
 
       <!-- Pré-visualização dos Contatos -->
@@ -39,39 +51,99 @@
         <h2 class="text-xl font-semibold text-gray-700 mb-4">Pré-visualização dos Contatos</h2>
 
         {% if contacts %}
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm text-left border border-gray-200 rounded-lg">
-            <thead class="bg-gray-100 text-gray-700 font-semibold">
-              <tr>
-                <th class="px-4 py-2 border-b">Nome</th>
-                <th class="px-4 py-2 border-b">Telefone</th>
-                <th class="px-4 py-2 border-b text-center">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for contact in contacts %}
-              <tr class="hover:bg-gray-50">
-                <td class="px-4 py-2 border-b">{{ contact.name }}</td>
-                <td class="px-4 py-2 border-b">{{ contact.phone }}</td>
-                <td class="px-4 py-2 border-b text-center">
-                  {% if contacts_progress[contact.phone] %}
-                    <!-- Se tiver True, mostra check -->
-                    <span class="text-green-600 font-semibold">✓</span>
-                  {% else %}
-                    <!-- Caso contrário, mostra algo como '...' -->
-                    <span class="text-gray-400">…</span>
-                  {% endif %}
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      {% else %}
-        <p class="text-gray-500">Nenhum contato carregado.</p>
-      {% endif %}
-      
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left border border-gray-200 rounded-lg">
+              <thead class="bg-gray-100 text-gray-700 font-semibold">
+                <tr>
+                  <th class="px-4 py-2 border-b">Nome</th>
+                  <th class="px-4 py-2 border-b">Telefone</th>
+                  <th class="px-4 py-2 border-b text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for contact in contacts %}
+                <tr class="hover:bg-gray-50">
+                  <td class="px-4 py-2 border-b">{{ contact.name }}</td>
+                  <td class="px-4 py-2 border-b">{{ contact.phone }}</td>
+
+                  <!-- IMPORTANTE: definimos um id para cada TD de status, baseando-se no phone -->
+                  <td class="px-4 py-2 border-b text-center" id="status-{{ contact.phone }}">
+                    {% if contacts_progress[contact.phone] %}
+                      <span class="text-green-600 font-semibold">✓</span>
+                    {% else %}
+                      <span class="text-gray-400">…</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="text-gray-500">Nenhum contato carregado.</p>
+        {% endif %}
       </div>
     </div>
+
+    <!-- SCRIPT para enviar a mensagem via fetch e não redirecionar -->
+    <script>
+      function sendMessages() {
+        const message = document.querySelector('textarea[name="message"]').value;
+        
+        // Faz um POST JSON na rota /send_now
+        fetch('/send_now', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ message: message })
+        })
+        .then(resp => resp.text())
+        .then(data => {
+          console.log('Resposta do servidor:', data);
+          alert('Envio iniciado!');
+        })
+        .catch(err => {
+          console.error('Erro ao enviar:', err);
+          alert('Ocorreu um erro ao iniciar o envio.');
+        });
+
+        // Impede que o form faça o submit tradicional
+        return false;
+      }
+
+      // =========================================================
+      // POLLING para atualizar o STATUS a cada 3 segundos
+      // =========================================================
+      function updateStatus() {
+        fetch('/status')
+          .then(response => response.json())
+          .then(progressData => {
+            // progressData é um objeto { phone: boolean }
+            // Exemplo: { "11999999999": true, "11777777777": false, ... }
+            for (const phone in progressData) {
+              // Monta o id "status-<phone>"
+              const cellId = `status-${phone}`;
+              const statusCell = document.getElementById(cellId);
+
+              if (statusCell) {
+                if (progressData[phone]) {
+                  // Se true, mostramos ✓
+                  statusCell.innerHTML = '<span class="text-green-600 font-semibold">✓</span>';
+                } else {
+                  // Se false, mostramos …
+                  statusCell.innerHTML = '<span class="text-gray-400">…</span>';
+                }
+              }
+            }
+          })
+          .catch(err => {
+            console.error('Erro ao buscar status:', err);
+          });
+      }
+
+      // Chama updateStatus() a cada 3 segundos
+      setInterval(updateStatus, 3000);
+    </script>
   </body>
 </html>
