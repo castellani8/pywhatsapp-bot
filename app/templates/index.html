@@ -1,90 +1,76 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
   <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8" />
     <title>WhatsApp Sender</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif; 
-        margin: 20px;
-      }
-      h1, h2 {
-        color: #333;
-      }
-      .container {
-        max-width: 800px;
-        margin: 0 auto;
-      }
-      .box {
-        border: 1px solid #ccc;
-        padding: 10px;
-        margin-bottom: 20px;
-        border-radius: 4px;
-      }
-      .box h3 {
-        margin-top: 0;
-      }
-      label {
-        display: inline-block;
-        width: 120px;
-        font-weight: bold;
-      }
-      input[type="text"], textarea {
-        width: 300px;
-      }
-      .button {
-        padding: 5px 10px; 
-        margin: 5px 0;
-        cursor: pointer;
-      }
-      .stop { background-color: #f33; color: #fff; }
-      .exit { background-color: #555; color: #fff; }
-      .table { border-collapse: collapse; width: 100%; margin-top: 10px;}
-      .table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body>
-    <div class="container">
-      <h1>WhatsApp Sender</h1>
-      
-      <div class="box">
-        <h3>Envio Imediato</h3>
-        <p>Quantidade de contatos: {{ contacts_count }}</p>
-        <form action="/send_now" method="post">
-          <label>Mensagem:</label><br>
-          <textarea name="message" rows="4" cols="50">Olá {name}, tudo bem?</textarea><br><br>
-          <input type="submit" value="Enviar Mensagens" class="button">
-        </form>
-        <form action="/stop" method="post" style="display:inline;">
-          <button type="submit" class="button stop">Parar Envio</button>
-        </form>
-        <form action="/exit" method="post" style="display:inline;">
-          <button type="submit" class="button exit">Sair do Programa</button>
+  <body class="bg-gray-50 text-gray-800">
+    <div class="container mx-auto max-w-4xl px-4 py-8">
+      <h1 class="text-3xl font-bold text-center mb-8 text-green-600">WhatsApp Sender</h1>
+
+      <!-- Envio Imediato -->
+      <div class="bg-white shadow-md rounded-lg p-6 mb-8 border border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-700 mb-4">Envio Imediato</h2>
+        <p class="text-sm text-gray-500 mb-2">Quantidade de contatos: <strong>{{ contacts_count }}</strong></p>
+
+        <form action="/send_now" method="post" class="space-y-4">
+          <div>
+            <label class="block font-medium text-gray-700 mb-1">Mensagem:</label>
+            <textarea name="message" rows="4" class="w-full p-2 border rounded-lg border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400" placeholder="Digite sua mensagem...">Olá {name}, tudo bem?</textarea>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-4">
+            <input type="submit" value="Enviar Mensagens" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"/>
+            
+            <form action="/stop" method="post">
+              <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">Parar Envio</button>
+            </form>
+
+            <form action="/exit" method="post">
+              <button type="submit" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">Sair do Programa</button>
+            </form>
+          </div>
         </form>
       </div>
 
-      <div class="box">
-        <h3>Pré-visualização dos Contatos</h3>
+      <!-- Pré-visualização dos Contatos -->
+      <div class="bg-white shadow-md rounded-lg p-6 border border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-700 mb-4">Pré-visualização dos Contatos</h2>
+
         {% if contacts %}
-          <table class="table">
-            <thead>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left border border-gray-200 rounded-lg">
+            <thead class="bg-gray-100 text-gray-700 font-semibold">
               <tr>
-                <th>Nome</th>
-                <th>Telefone</th>
+                <th class="px-4 py-2 border-b">Nome</th>
+                <th class="px-4 py-2 border-b">Telefone</th>
+                <th class="px-4 py-2 border-b text-center">Status</th>
               </tr>
             </thead>
             <tbody>
               {% for contact in contacts %}
-              <tr>
-                <td>{{ contact.name }}</td>
-                <td>{{ contact.phone }}</td>
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-2 border-b">{{ contact.name }}</td>
+                <td class="px-4 py-2 border-b">{{ contact.phone }}</td>
+                <td class="px-4 py-2 border-b text-center">
+                  {% if contacts_progress[contact.phone] %}
+                    <!-- Se tiver True, mostra check -->
+                    <span class="text-green-600 font-semibold">✓</span>
+                  {% else %}
+                    <!-- Caso contrário, mostra algo como '...' -->
+                    <span class="text-gray-400">…</span>
+                  {% endif %}
+                </td>
               </tr>
               {% endfor %}
             </tbody>
           </table>
-        {% else %}
-          <p>Nenhum contato carregado.</p>
-        {% endif %}
+        </div>
+      {% else %}
+        <p class="text-gray-500">Nenhum contato carregado.</p>
+      {% endif %}
+      
       </div>
     </div>
   </body>

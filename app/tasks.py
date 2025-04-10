@@ -1,19 +1,30 @@
+# tasks.py
 import time
 import threading
 import pywhatkit
 from .config import INTERVALO_ENVIO, WAIT_TIME, CLOSE_TIME
 
 # Variáveis globais para controle de envio
-sending_thread = None  # Thread que faz o envio
-stop_flag = False      # Sinal para parar envio em andamento
+sending_thread = None
+stop_flag = False
+
+# Dicionário que mapeia "telefone" -> bool (True se mensagem foi enviada com sucesso)
+contacts_progress = {}
 
 def start_sending(contacts, message_template):
     """Inicia o envio em uma thread separada."""
-    global sending_thread, stop_flag
+    global sending_thread, stop_flag, contacts_progress
 
     # Se já houver um envio em andamento, não inicia outro
     if sending_thread and sending_thread.is_alive():
         return False  # Indica que já há um envio em andamento
+
+    # Zera o dicionário de progresso
+    contacts_progress = {}
+    for c in contacts:
+        phone = c.get("phone", "")
+        if phone:
+            contacts_progress[phone] = False
 
     # Reseta o stop_flag antes de iniciar
     stop_flag = False
@@ -42,6 +53,8 @@ def start_sending(contacts, message_template):
                     tab_close=True,
                     close_time=CLOSE_TIME
                 )
+                # Marca como True, pois já foi enviado com sucesso
+                contacts_progress[phone] = True
                 time.sleep(INTERVALO_ENVIO)
             except Exception as e:
                 print("[ERRO]", e)

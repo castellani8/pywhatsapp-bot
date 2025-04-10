@@ -1,24 +1,25 @@
+# routes.py
 import os
 import time
 import threading
-from flask import Blueprint, request, render_template, redirect, url_for
-
-from .data_handler import load_contacts, load_schedules, save_schedules
-from .tasks import start_sending, stop_sending, is_sending
+from flask import Blueprint, request, render_template
+from .data_handler import load_contacts, load_schedules
+from .tasks import start_sending, stop_sending, is_sending, contacts_progress
 
 main_bp = Blueprint('main', __name__)
 
 @main_bp.route("/")
 def index():
+    """Página inicial."""
     contacts = load_contacts()
     schedules = load_schedules()
     return render_template(
         'index.html',
         contacts_count=len(contacts),
         contacts=contacts,
-        schedules=schedules
+        schedules=schedules,
+        contacts_progress=contacts_progress  # Passa aqui
     )
-
 
 @main_bp.route("/send_now", methods=["POST"])
 def send_now():
