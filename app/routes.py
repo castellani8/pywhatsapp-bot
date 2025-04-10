@@ -1,9 +1,9 @@
 import os
 import time
 import threading
-from flask import Blueprint, request, render_template, jsonify  # <--- Aqui inclui jsonify
-from .data_handler import load_contacts, load_schedules
-from .tasks import start_sending, stop_sending, is_sending, contacts_progress
+from flask import Blueprint, request, render_template, jsonify
+from .data_handler import load_contacts, load_schedules, load_status
+from .tasks import start_sending, stop_sending, is_sending
 
 main_bp = Blueprint('main', __name__)
 
@@ -12,17 +12,42 @@ def index():
     """Página inicial."""
     contacts = load_contacts()
     schedules = load_schedules()
+    
+    # Garante que o status tenha a estrutura correta
+    status = load_status()
+    if not status:
+        status = {
+            "general": {
+                "is_running": False,
+                "total_contacts": 0,
+                "processed_contacts": 0,
+                "success_count": 0,
+                "error_count": 0
+            },
+            "contacts": {}
+        }
+    elif "general" not in status:
+        status["general"] = {
+            "is_running": False,
+            "total_contacts": 0,
+            "processed_contacts": 0,
+            "success_count": 0,
+            "error_count": 0
+        }
+    elif "contacts" not in status:
+        status["contacts"] = {}
+    
     return render_template(
         'index.html',
         contacts_count=len(contacts),
         contacts=contacts,
         schedules=schedules,
-        contacts_progress=contacts_progress  # Passa aqui
+        contacts_progress=status
     )
 
 @main_bp.route("/send_now", methods=["POST"])
 def send_now():
-    data = request.get_json()        # <-- Pegamos o JSON enviado pelo fetch
+    data = request.get_json()
     message_template = data.get("message", "").strip()
     if not message_template:
         return "Mensagem vazia!", 400
@@ -58,4 +83,28 @@ def get_status():
     """
     Retorna o status de envio dos contatos em JSON.
     """
-    return jsonify(contacts_progress)
+    status = load_status()
+    if not status:
+        status = {
+            "general": {
+                "is_running": False,
+                "total_contacts": 0,
+                "processed_contacts": 0,
+                "success_count": 0,
+                "error_count": 0
+            },
+            "contacts": {}
+        }
+    elif "general" not in status:
+        status["general"] = {
+            "is_running": False,
+            "total_contacts": 0,
+            "processed_contacts": 0,
+            "success_count": 0,
+            "error_count": 0
+        }
+    elif "contacts" not in status:
+        status["contacts"] = {}
+    
+    print(f"[DEBUG] Status route - status: {status}")
+    return jsonify(status)

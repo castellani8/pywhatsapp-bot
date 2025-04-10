@@ -16,6 +16,28 @@
           <strong>{{ contacts_count }}</strong>
         </p>
 
+        <!-- Status Geral -->
+        <div id="general-status" class="mb-4 p-3 rounded-lg bg-gray-100">
+          <div class="flex justify-between items-center">
+            <div>
+              <span class="font-medium">Status do Envio:</span>
+              <span id="sending-status" class="ml-2">Não iniciado</span>
+            </div>
+            <div>
+              <span class="font-medium">Progresso:</span>
+              <span id="progress-count" class="ml-2">0/0</span>
+            </div>
+            <div>
+              <span class="font-medium">Sucessos:</span>
+              <span id="success-count" class="ml-2 text-green-600">0</span>
+            </div>
+            <div>
+              <span class="font-medium">Erros:</span>
+              <span id="error-count" class="ml-2 text-red-600">0</span>
+            </div>
+          </div>
+        </div>
+
         <!-- FORM que NÃO vai redirecionar -->
         <form class="space-y-4" onsubmit="return sendMessages();">
           <div>
@@ -68,8 +90,14 @@
 
                   <!-- IMPORTANTE: definimos um id para cada TD de status, baseando-se no phone -->
                   <td class="px-4 py-2 border-b text-center" id="status-{{ contact.phone }}">
-                    {% if contacts_progress[contact.phone] %}
-                      <span class="text-green-600 font-semibold">✓</span>
+                    {% if contacts_progress and contacts_progress.contacts and contacts_progress.contacts[contact.phone] %}
+                      {% if contacts_progress.contacts[contact.phone].status == "success" %}
+                        <span class="text-green-600 font-semibold">✓</span>
+                      {% elif contacts_progress.contacts[contact.phone].status == "error" %}
+                        <span class="text-red-600 font-semibold">✗</span>
+                      {% else %}
+                        <span class="text-gray-400">…</span>
+                      {% endif %}
                     {% else %}
                       <span class="text-gray-400">…</span>
                     {% endif %}
@@ -119,19 +147,30 @@
         fetch('/status')
           .then(response => response.json())
           .then(progressData => {
-            // progressData é um objeto { phone: boolean }
-            // Exemplo: { "11999999999": true, "11777777777": false, ... }
-            for (const phone in progressData) {
-              // Monta o id "status-<phone>"
+            // Atualiza o status geral
+            const general = progressData.general || {};
+            document.getElementById('sending-status').textContent = 
+              general.is_running ? 'Em andamento' : 'Finalizado';
+            document.getElementById('progress-count').textContent = 
+              `${general.processed_contacts || 0}/${general.total_contacts || 0}`;
+            document.getElementById('success-count').textContent = 
+              general.success_count || 0;
+            document.getElementById('error-count').textContent = 
+              general.error_count || 0;
+
+            // Atualiza o status de cada contato
+            const contacts = progressData.contacts || {};
+            for (const phone in contacts) {
               const cellId = `status-${phone}`;
               const statusCell = document.getElementById(cellId);
 
               if (statusCell) {
-                if (progressData[phone]) {
-                  // Se true, mostramos ✓
+                const status = contacts[phone].status;
+                if (status === "success") {
                   statusCell.innerHTML = '<span class="text-green-600 font-semibold">✓</span>';
+                } else if (status === "error") {
+                  statusCell.innerHTML = '<span class="text-red-600 font-semibold">✗</span>';
                 } else {
-                  // Se false, mostramos …
                   statusCell.innerHTML = '<span class="text-gray-400">…</span>';
                 }
               }
