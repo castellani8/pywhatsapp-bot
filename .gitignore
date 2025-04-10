@@ -256,3 +256,5 @@ $RECYCLE.BIN/
 
 # PyWhatKit files
 .PyWhatKit_DB.txt
+data/status.json
+data/schedule.json
