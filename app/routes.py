@@ -1,8 +1,8 @@
 import os
 import time
 import threading
-from flask import Blueprint, request, render_template, jsonify
-from .data_handler import load_contacts, load_schedules, load_status
+from flask import Blueprint, request, render_template, jsonify, redirect, url_for
+from .data_handler import load_contacts, load_schedules, load_status, save_status
 from .tasks import start_sending, stop_sending, is_sending
 
 main_bp = Blueprint('main', __name__)
@@ -108,3 +108,20 @@ def get_status():
     
     print(f"[DEBUG] Status route - status: {status}")
     return jsonify(status)
+
+@main_bp.route("/clear_status", methods=["POST"])
+def clear_status():
+    """Limpa o status de envio."""
+    # Cria um status vazio
+    empty_status = {
+        "general": {
+            "is_running": False,
+            "total_contacts": 0,
+            "processed_contacts": 0,
+            "success_count": 0,
+            "error_count": 0
+        },
+        "contacts": {}
+    }
+    save_status(empty_status)
+    return redirect(url_for('main.index'))

@@ -57,7 +57,16 @@
             >
               Enviar Mensagens
             </button>
-          </form>
+
+            <!-- Botão Limpar Status -->
+            <form action="/clear_status" method="post">
+              <button 
+                type="submit" 
+                class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition"
+              >
+                Limpar Status
+              </button>
+            </form>
 
             <!-- Botão Sair -->
             <form action="/exit" method="post">
@@ -66,6 +75,7 @@
               </button>
             </form>
           </div>
+        </form>
       </div>
 
       <!-- Pré-visualização dos Contatos -->
